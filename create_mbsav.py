@@ -39,7 +39,7 @@ header = '''
 \t\t<optStates>{2}</optStates>
 \t\t<optCountries>{3}</optCountries>
 \t\t<categories><![CDATA[
-<NODES>{4}</NODE></NODES>
+<NODES>{4}</NODES>
 \t\t]]></categories>
 \t</external_site>
         '''.format(

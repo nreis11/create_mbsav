@@ -44,13 +44,13 @@ def get_tier(line):
 
 def get_value(line, label=False):
     if label:
-        value = re.search(r':\s*[\'"]?([^"]*)[\'"]?', line)
+        value = re.search(r':\s*[\'"]?([^\'"]*)[\'"]?', line)
     else:
-        value = re.search(r'^\s*[\'"]?([^"]*)[\'"]?:', line)
+        value = re.search(r'^\s*[\'"]?([^\'"]*)[\'"]?:', line)
 
     if value:
         return value.group(1)
-    raise AttributeError("No values found. Please check your yaml and try again.")
+    print("No values found. Please check your yaml and try again.")
         
 
 def get_parent_key(curr_tier, parents):
@@ -65,6 +65,7 @@ def parse_yaml(filename):
     key = 0
     parents = {}
     prev_tier, curr_tier = 1, 1
+    closing_tags = 0
     board_data = ''
     nodes = []
     for num, line in enumerate(file, start=1):
@@ -79,23 +80,31 @@ def parse_yaml(filename):
         else:
             # Parse label
             caption = get_value(line, True)
-            closing_tags = 0
-            # print("Prev tier", prev_tier)
-            # print("Curr tier", curr_tier)
+            diff = 0
             if curr_tier < prev_tier:
-                closing_tags = prev_tier - curr_tier
+                diff = prev_tier - curr_tier
+                closing_tags -= diff
             elif curr_tier > prev_tier:
                 # Prev node needs to be open
+                closing_tags += 1
                 nodes[-1].has_children = True
-            node = create_node(caption, eqkey, tag, parent_key, closing_tags)
+            node = create_node(caption, eqkey, tag, parent_key, diff)
             nodes.append(node)
             # print(node)
             prev_tier = curr_tier
     for node in nodes:
         board_data += str(node)
+    # print("Closing tags", closing_tags)
+    board_data += '</NODE>' * closing_tags
+    debug(board_data)
     return board_data
     # return ''.join(map(lambda node: print(node), nodes))
 
+def debug(data):
+    open_tag = '">'
+    close_tag = '</NODE>'
+    print("Open tags:", data.count(open_tag))
+    print("Close tags:", data.count(close_tag))
 
 
 
