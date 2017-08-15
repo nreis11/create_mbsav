@@ -29,7 +29,7 @@ while category not in range(len(eq_categories) + 1):
 eq_bools[category] = "True"
 
 header = '''
-<?xml version="1.0" encoding="ISO-8859-1" ?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <saved version="3">
 \t<external_site>
 \t\t<chkParentsSelectable>0</chkParentsSelectable>

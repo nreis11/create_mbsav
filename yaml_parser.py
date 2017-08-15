@@ -11,7 +11,6 @@ class Node(object):
             setattr(self, attr, value)
         self.has_children = False
 
-
     def __str__(self):
         if self.has_children:
             closing_tags = '</NODE>' * self.closing_tags
@@ -38,21 +37,28 @@ def create_node(caption, key, tag, parent_key, closing_tags):
     "closing_tags": closing_tags
     })
 
-def determine_tier(line):
+def get_tier(line):
     tier_match = re.search(r'^\s*', line)
     tier = (len(tier_match.group()) // 4) + 1
-    return tier 
+    return tier
 
-def find_value(line):
-    value = re.search(r'"(.*)"', line)
-    return value.group(1)
+def get_value(line, label=False):
+    if label:
+        value = re.search(r':\s*[\'"]?([^"]*)[\'"]?', line)
+    else:
+        value = re.search(r'^\s*[\'"]?([^"]*)[\'"]?:', line)
+
+    if value:
+        return value.group(1)
+    raise AttributeError("No values found. Please check your yaml and try again.")
+        
 
 def get_parent_key(curr_tier, parents):
     if curr_tier > 1:
-        parentkey = parents[curr_tier - 1]
+        parent_key = parents[curr_tier - 1]
     else:
-        parentkey = ''
-    return parentkey
+        parent_key = ''
+    return parent_key
 
 def parse_yaml(filename):
     file = open_yaml(filename)
@@ -64,16 +70,15 @@ def parse_yaml(filename):
     for num, line in enumerate(file, start=1):
         if num % 2:
             # Parse value
-            curr_tier = determine_tier(line)
+            curr_tier = get_tier(line)
             key += 1
             eqkey = 'eq' + str(key)
             parents[curr_tier] = eqkey
-            # All children have a parent
             parent_key = get_parent_key(curr_tier, parents)
-            tag = find_value(line)
+            tag = get_value(line)
         else:
             # Parse label
-            caption = find_value(line)
+            caption = get_value(line, True)
             closing_tags = 0
             # print("Prev tier", prev_tier)
             # print("Curr tier", curr_tier)
