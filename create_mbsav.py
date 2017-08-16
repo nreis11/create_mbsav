@@ -19,16 +19,15 @@ for idx, category in enumerate(eq_categories, start=1):
     print(idx, category)
 
 category = 999
-while category not in range(len(eq_categories) + 1):
-    category = input("\nNumber: ")
+while category not in range(len(eq_categories)):
     try:
-        category = int(category) - 1
+        category = int(input("\nNumber: ")) - 1
     except Exception:
         print('Please type a valid number.')
 
 eq_bools[category] = "True"
 
-header = '''
+template = '''
 <?xml version="1.0" encoding="UTF-8" ?>
 <saved version="3">
 \t<external_site>
@@ -49,9 +48,12 @@ header = '''
             ).strip()
 
 category_choice = 'eq_{0}_data'.format(eq_categories[category]).lower()
-output = header + eq_values.data[category_choice]
+output = template + eq_values.data[category_choice]
 
-with open("output.mbsav", 'w+') as f:
-    f.write(output)
-
-print("output.mbsav successfully created.")
+try:
+    with open("output.mbsav", 'w+') as f:
+        f.write(output)
+except Exception:
+    print("An error occured writing to output.mbsav.")
+else:
+    print("output.mbsav successfully created.")

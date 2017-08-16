@@ -12,12 +12,12 @@ class Node(object):
         self.has_children = False
 
     def __str__(self):
+        closing_tags = '</NODE>' * self.closing_tags
         if self.has_children:
-            closing_tags = '</NODE>' * self.closing_tags
             return closing_tags + '<NODE Caption="{0}" Key="{1}" Tag="{2}" ParentKey="{3}">'.format(
                 self.caption, self.key, self.tag, self.parent_key)
         else:
-            return '<NODE Caption="{0}" Key="{1}" Tag="{2}" ParentKey="{3}"/>'.format(
+            return closing_tags + '<NODE Caption="{0}" Key="{1}" Tag="{2}" ParentKey="{3}"/>'.format(
                 self.caption, self.key, self.tag, self.parent_key)
 
 def open_yaml(filename):
@@ -50,7 +50,8 @@ def get_value(line, label=False):
 
     if value:
         return value.group(1)
-    print("No values found. Please check your yaml and try again.")
+    print("No values found. Values and labels should be on alternating lines.")
+    print("Please check your yaml and try again.")
         
 
 def get_parent_key(curr_tier, parents):
@@ -72,6 +73,7 @@ def parse_yaml(filename):
         if num % 2:
             # Parse value
             curr_tier = get_tier(line)
+            # print("curr_tier", curr_tier)
             key += 1
             eqkey = 'eq' + str(key)
             parents[curr_tier] = eqkey
@@ -90,15 +92,17 @@ def parse_yaml(filename):
                 nodes[-1].has_children = True
             node = create_node(caption, eqkey, tag, parent_key, diff)
             nodes.append(node)
-            # print(node)
             prev_tier = curr_tier
-    for node in nodes:
-        board_data += str(node)
     # print("Closing tags", closing_tags)
+    for node in nodes:
+        if node.has_children:
+            print(node)
+        else:
+            print("\t" + str(node))
+    board_data = ''.join(map(lambda node: str(node), nodes))
     board_data += '</NODE>' * closing_tags
     debug(board_data)
     return board_data
-    # return ''.join(map(lambda node: print(node), nodes))
 
 def debug(data):
     open_tag = '">'
