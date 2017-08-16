@@ -1,3 +1,5 @@
+# coding=utf-8
+
 data = {
 "eq_categories_data": '''
 \t<equest><![CDATA[

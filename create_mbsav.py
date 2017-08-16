@@ -3,9 +3,9 @@ import yaml_parser
 import sys
 
 if len(sys.argv) > 1:
-    yaml_file = sys.argv[1] + '.yaml'
+    yaml_file = sys.argv[1]
 else:
-    print("Please supply yaml name as argv. Ex: <Industries>")
+    print("Please supply yaml name as argv. Ex: <Industries.yaml>")
     exit(0)
 
 print("Importing", yaml_file)
@@ -27,21 +27,35 @@ while category not in range(len(eq_categories)):
 
 eq_bools[category] = "True"
 
+def check_options(option):
+    while True:
+        choice = input(option + '(Y or N): ').upper()
+        if choice == 'Y':
+            return 1
+        elif choice == 'N':
+            return 0
+        else:
+            print('That is not a valid answer. Y or N? ')
+
+parents_selectable = check_options("Parents selectable?")
+output_parents = check_options("Output parents?")
+
 template = '''
 <?xml version="1.0" encoding="UTF-8" ?>
 <saved version="3">
 \t<external_site>
-\t\t<chkParentsSelectable>0</chkParentsSelectable>
-\t\t<chkOutputParents>0</chkOutputParents>
-\t\t<optCategories>{0}</optCategories>
-\t\t<optIndustries>{1}</optIndustries>
-\t\t<optStates>{2}</optStates>
-\t\t<optCountries>{3}</optCountries>
+\t\t<chkParentsSelectable>{0}</chkParentsSelectable>
+\t\t<chkOutputParents>{1}</chkOutputParents>
+\t\t<optCategories>{2}</optCategories>
+\t\t<optIndustries>{3}</optIndustries>
+\t\t<optStates>{4}</optStates>
+\t\t<optCountries>{5}</optCountries>
 \t\t<categories><![CDATA[
-<NODES>{4}</NODES>
+<NODES>{6}</NODES>
 \t\t]]></categories>
 \t</external_site>
         '''.format(
+            parents_selectable, output_parents,
             eq_bools[0], eq_bools[1],
             eq_bools[2], eq_bools[3],
             board_data

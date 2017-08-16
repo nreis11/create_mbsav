@@ -12,29 +12,28 @@ class Node(object):
         self.has_children = False
 
     def __str__(self):
-        closing_tags = '</NODE>' * self.closing_tags
         if self.has_children:
-            return closing_tags + '<NODE Caption="{0}" Key="{1}" Tag="{2}" ParentKey="{3}">'.format(
+            return '<NODE Caption="{0}" Key="{1}" Tag="{2}" ParentKey="{3}">'.format(
                 self.caption, self.key, self.tag, self.parent_key)
         else:
-            return closing_tags + '<NODE Caption="{0}" Key="{1}" Tag="{2}" ParentKey="{3}"/>'.format(
+            return '<NODE Caption="{0}" Key="{1}" Tag="{2}" ParentKey="{3}"/>'.format(
                 self.caption, self.key, self.tag, self.parent_key)
 
 def open_yaml(filename):
     try:
         file = open(filename)
     except IOError:
-        print("File not found. Please check and try again")
+        print("File not found. Please check filename (Ex. <Countries.yaml>) and try again.")
         exit(0)
     return file
 
-def create_node(caption, key, tag, parent_key, closing_tags):
+def create_node(caption, key, tag, parent_key, tier):
     return Node({
     "caption": caption,
     "key": key,
     "tag": tag,
     "parent_key": parent_key,
-    "closing_tags": closing_tags
+    "tier": tier
     })
 
 def get_tier(line):
@@ -72,43 +71,52 @@ def parse_yaml(filename):
     for num, line in enumerate(file, start=1):
         if num % 2:
             # Parse value
-            curr_tier = get_tier(line)
-            # print("curr_tier", curr_tier)
+            tier = get_tier(line)
             key += 1
             eqkey = 'eq' + str(key)
-            parents[curr_tier] = eqkey
-            parent_key = get_parent_key(curr_tier, parents)
+            parents[tier] = eqkey
+            parent_key = get_parent_key(tier, parents)
             tag = get_value(line)
         else:
             # Parse label
             caption = get_value(line, True)
-            diff = 0
-            if curr_tier < prev_tier:
-                diff = prev_tier - curr_tier
-                closing_tags -= diff
-            elif curr_tier > prev_tier:
-                # Prev node needs to be open
-                closing_tags += 1
-                nodes[-1].has_children = True
-            node = create_node(caption, eqkey, tag, parent_key, diff)
+            node = create_node(caption, eqkey, tag, parent_key, tier)
             nodes.append(node)
-            prev_tier = curr_tier
-    # print("Closing tags", closing_tags)
-    for node in nodes:
-        if node.has_children:
-            print(node)
-        else:
-            print("\t" + str(node))
-    board_data = ''.join(map(lambda node: str(node), nodes))
-    board_data += '</NODE>' * closing_tags
-    debug(board_data)
+    board_data = create_board_data(nodes)
+    # debug(board_data)
     return board_data
+
+def create_board_data(nodes):
+    closing_tags = 0
+    board_data = ''
+    last_node = nodes[-1]
+    for idx, node in enumerate(nodes):
+        if last_node == node:
+            # print('\t' * (node.tier - 1), idx + 1, str(node))
+            board_data += str(node)
+            break
+        next_node = nodes[idx + 1]
+        diff = 0
+        if node.tier < next_node.tier:
+            node.has_children = True
+            closing_tags += 1
+        elif node.tier > next_node.tier:
+            diff = node.tier - next_node.tier
+            closing_tags -= diff
+        board_data += str(node) + ('</NODE>' * diff)
+        # Debug
+        # print('\t' * (node.tier - 1), idx + 1, str(node))
+    # & need to be encoded properly
+    board_data = re.sub(r'&', '&amp;', board_data)
+    return board_data + ('</NODE>' * closing_tags)
 
 def debug(data):
     open_tag = '">'
     close_tag = '</NODE>'
     print("Open tags:", data.count(open_tag))
     print("Close tags:", data.count(close_tag))
+
+
 
 
 
