@@ -1,10 +1,14 @@
+from __future__ import absolute_import, print_function
 import eq_values
 import yaml_parser
 import sys
+assert sys.version_info >= (2,7)
+testing = False
 
-# Testing
+# Testing functions
 if len(sys.argv) > 2 and sys.argv[2] == '-t':
     import debug
+    testing = True
 
 if len(sys.argv) > 1:
     yaml_file = sys.argv[1]
@@ -33,7 +37,11 @@ eq_bools[category] = "True"
 
 def check_options(option):
     while True:
-        choice = input(option + '(Y or N): ').upper()
+        if sys.version_info >= (3,0):
+            choice = input(option + '(Y or N): ').upper()
+        else:
+            choice = raw_input(option + '(Y or N): ').upper()
+
         if choice == 'Y':
             return 1
         elif choice == 'N':
@@ -58,12 +66,12 @@ template = '''
 <NODES>{6}</NODES>
 \t\t]]></categories>
 \t</external_site>
-        '''.format(
-            parents_selectable, output_parents,
-            eq_bools[0], eq_bools[1],
-            eq_bools[2], eq_bools[3],
-            board_data
-            ).strip()
+'''.format(
+    parents_selectable, output_parents,
+    eq_bools[0], eq_bools[1],
+    eq_bools[2], eq_bools[3],
+    board_data
+    ).strip()
 
 category_choice = 'eq_{0}_data'.format(eq_categories[category]).lower()
 output = template + eq_values.data[category_choice]
@@ -76,6 +84,6 @@ except Exception:
 else:
     print("output.mbsav successfully created.")
 
-if len(sys.argv) > 2 and sys.argv[2] == '-t':
+if testing:
     debug.verify_output("output.mbsav", "testfile.mbsav")
     debug.count_tags(board_data)

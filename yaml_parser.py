@@ -21,6 +21,7 @@ class Node(object):
         return '<NODE Caption="{0}" Key="{1}" Tag="{2}" ParentKey="{3}"'.format(
             self.caption, self.key, self.tag, self.parent_key) + tail
 
+
 def open_yaml(filename):
     try:
         file = open(filename)
@@ -47,21 +48,22 @@ def get_value(line, label=False):
         
 
 def get_parent_key(curr_tier, parents):
-    if curr_tier > 1:
-        parent_key = parents[curr_tier - 1]
-    else:
-        parent_key = ''
+    parent_key = parents[curr_tier - 1] if curr_tier > 1 else ''
     return parent_key
+
+def check_for_empty_line(num, line):
+    empty_line = re.search(r'^\s*$', line)
+    if empty_line:
+        print("Empty line found! Please remove empty line from yaml and try again.")
+        print("Line:", num)
+        exit(0)
 
 def parse_yaml(filename):
     file = open_yaml(filename)
-    key = 0
     parents = {}
-    prev_tier, curr_tier = 1, 1
-    closing_tags = 0
-    board_data = ''
     nodes = []
     for num, line in enumerate(file, start=1):
+        check_for_empty_line(num, line)
         if num % 2:
             # Parse value
             tier = get_tier(line)
@@ -74,7 +76,6 @@ def parse_yaml(filename):
             parents[tier] = node.key
             nodes.append(node)
     board_data = create_board_data(nodes)
-    # debug(board_data)
     return board_data
 
 def create_board_data(nodes):
