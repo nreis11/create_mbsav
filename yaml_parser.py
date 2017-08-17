@@ -83,9 +83,9 @@ def create_board_data(nodes):
     board_data = ''
     last_node = nodes[-1]
     for idx, node in enumerate(nodes):
+        # print('\t' * (node.tier - 1), idx + 1, str(node))
         if last_node == node:
-            # print('\t' * (node.tier - 1), idx + 1, str(node))
-            board_data += str(node)
+            board_data += str(node) + ('</NODE>' * closing_tags)
             break
         next_node = nodes[idx + 1]
         diff = 0
@@ -96,7 +96,6 @@ def create_board_data(nodes):
             diff = node.tier - next_node.tier
             closing_tags -= diff
         board_data += str(node) + ('</NODE>' * diff)
-        # print('\t' * (node.tier - 1), idx + 1, str(node))
     # & needs to be encoded properly
     board_data = re.sub(r'&', '&amp;', board_data)
-    return board_data + ('</NODE>' * closing_tags)
+    return board_data
