@@ -1,14 +1,16 @@
 import re
-# Parse yaml
 # Create node with caption, key, tag, parentkey
 
 # <NODE Caption="Plumber" Key="eq1" Tag="55" ParentKey=""/>
 
 class Node(object):
 
-    def __init__(self, caption, key, tag, parent_key, tier):
+    _KEY = 1
+
+    def __init__(self, caption, tag, parent_key, tier):
         self.caption = caption
-        self.key = key
+        self.key = 'eq' + str(self._KEY)
+        self.__class__._KEY += 1
         self.tag = tag
         self.parent_key = parent_key
         self.tier = tier
@@ -63,15 +65,13 @@ def parse_yaml(filename):
         if num % 2:
             # Parse value
             tier = get_tier(line)
-            key += 1
-            eqkey = 'eq' + str(key)
-            parents[tier] = eqkey
             parent_key = get_parent_key(tier, parents)
             tag = get_value(line)
         else:
             # Parse label
             caption = get_value(line, True)
-            node = Node(caption, eqkey, tag, parent_key, tier)
+            node = Node(caption, tag, parent_key, tier)
+            parents[tier] = node.key
             nodes.append(node)
     board_data = create_board_data(nodes)
     # debug(board_data)
@@ -95,15 +95,7 @@ def create_board_data(nodes):
             diff = node.tier - next_node.tier
             closing_tags -= diff
         board_data += str(node) + ('</NODE>' * diff)
-        # Debug
         # print('\t' * (node.tier - 1), idx + 1, str(node))
     # & needs to be encoded properly
     board_data = re.sub(r'&', '&amp;', board_data)
     return board_data + ('</NODE>' * closing_tags)
-
-def debug(data):
-    open_tag = '">'
-    close_tag = '</NODE>'
-    print("Open tags:", data.count(open_tag))
-    print("Close tags:", data.count(close_tag))
-

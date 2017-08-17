@@ -78,3 +78,4 @@ else:
 
 if len(sys.argv) > 2 and sys.argv[2] == '-t':
     debug.verify_output("output.mbsav", "testfile.mbsav")
+    debug.count_tags(board_data)
