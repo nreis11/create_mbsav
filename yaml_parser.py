@@ -6,18 +6,18 @@ import re
 
 class Node(object):
 
-    def __init__(self, props={}):
-        for attr, value in props.items():
-            setattr(self, attr, value)
+    def __init__(self, caption, key, tag, parent_key, tier):
+        self.caption = caption
+        self.key = key
+        self.tag = tag
+        self.parent_key = parent_key
+        self.tier = tier
         self.has_children = False
 
     def __str__(self):
-        if self.has_children:
-            return '<NODE Caption="{0}" Key="{1}" Tag="{2}" ParentKey="{3}">'.format(
-                self.caption, self.key, self.tag, self.parent_key)
-        else:
-            return '<NODE Caption="{0}" Key="{1}" Tag="{2}" ParentKey="{3}"/>'.format(
-                self.caption, self.key, self.tag, self.parent_key)
+        tail = '>' if self.has_children else '/>'
+        return '<NODE Caption="{0}" Key="{1}" Tag="{2}" ParentKey="{3}"'.format(
+            self.caption, self.key, self.tag, self.parent_key) + tail
 
 def open_yaml(filename):
     try:
@@ -26,15 +26,6 @@ def open_yaml(filename):
         print("File not found. Please check filename (Ex. <Countries.yaml>) and try again.")
         exit(0)
     return file
-
-def create_node(caption, key, tag, parent_key, tier):
-    return Node({
-    "caption": caption,
-    "key": key,
-    "tag": tag,
-    "parent_key": parent_key,
-    "tier": tier
-    })
 
 def get_tier(line):
     tier_match = re.search(r'^\s*', line)
@@ -80,7 +71,7 @@ def parse_yaml(filename):
         else:
             # Parse label
             caption = get_value(line, True)
-            node = create_node(caption, eqkey, tag, parent_key, tier)
+            node = Node(caption, eqkey, tag, parent_key, tier)
             nodes.append(node)
     board_data = create_board_data(nodes)
     # debug(board_data)
@@ -106,7 +97,7 @@ def create_board_data(nodes):
         board_data += str(node) + ('</NODE>' * diff)
         # Debug
         # print('\t' * (node.tier - 1), idx + 1, str(node))
-    # & need to be encoded properly
+    # & needs to be encoded properly
     board_data = re.sub(r'&', '&amp;', board_data)
     return board_data + ('</NODE>' * closing_tags)
 
@@ -115,9 +106,4 @@ def debug(data):
     close_tag = '</NODE>'
     print("Open tags:", data.count(open_tag))
     print("Close tags:", data.count(close_tag))
-
-
-
-
-
 

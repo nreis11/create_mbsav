@@ -2,6 +2,10 @@ import eq_values
 import yaml_parser
 import sys
 
+# Testing
+if len(sys.argv) > 2 and sys.argv[2] == '-t':
+    import debug
+
 if len(sys.argv) > 1:
     yaml_file = sys.argv[1]
 else:
@@ -71,3 +75,6 @@ except Exception:
     print("An error occured writing to output.mbsav.")
 else:
     print("output.mbsav successfully created.")
+
+if len(sys.argv) > 2 and sys.argv[2] == '-t':
+    debug.verify_output("output.mbsav", "testfile.mbsav")
