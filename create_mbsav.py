@@ -36,6 +36,7 @@ while category not in range(len(eq_categories)):
 eq_bools[category] = "True"
 
 def check_options(option):
+    """Handles boolean options for output"""
     while True:
         if sys.version_info >= (3,0):
             choice = input(option + '(Y or N): ').upper()

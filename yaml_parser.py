@@ -4,7 +4,7 @@ import re
 # <NODE Caption="Plumber" Key="eq1" Tag="55" ParentKey=""/>
 
 class Node(object):
-
+    """Class creates node obj based on args except class key incrementer"""
     _KEY = 1
 
     def __init__(self, caption, tag, parent_key, tier):
@@ -23,6 +23,7 @@ class Node(object):
 
 
 def open_yaml(filename):
+    """Attempts to open supplied yaml filename"""
     try:
         file = open(filename)
     except IOError:
@@ -31,11 +32,13 @@ def open_yaml(filename):
     return file
 
 def get_tier(line):
+    """Returns current line tier based on # of spaces / 4"""
     tier_match = re.search(r'^\s*', line)
     tier = (len(tier_match.group()) // 4) + 1
     return tier
 
 def get_value(line, label=False):
+    """Retrieves value, whether enclosed by quotes or not"""
     if label:
         value = re.search(r':\s*[\'"]?([^\'"]*)[\'"]?', line)
     else:
@@ -48,6 +51,7 @@ def get_value(line, label=False):
         
 
 def get_parent_key(curr_tier, parents):
+    """Retrieves parent key based on current tier"""
     parent_key = parents[curr_tier - 1] if curr_tier > 1 else ''
     return parent_key
 
@@ -59,6 +63,7 @@ def check_for_empty_line(num, line):
         exit(0)
 
 def parse_yaml(filename):
+    """Parses yaml and returns board data in str form."""
     file = open_yaml(filename)
     parents = {}
     nodes = []
@@ -79,6 +84,7 @@ def parse_yaml(filename):
     return board_data
 
 def create_board_data(nodes):
+    """Creates board data by determining parent node and children."""
     closing_tags = 0
     board_data = ''
     last_node = nodes[-1]
