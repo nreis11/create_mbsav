@@ -11,7 +11,7 @@ if len(sys.argv) > 2 and sys.argv[2] == '-t':
     testing = True
 
 if len(sys.argv) > 1:
-    yaml_file = "../yaml/" + sys.argv[1]
+    yaml_file = sys.argv[1]
 else:
     print("Please supply yaml name as argv. Ex: <Industries.yaml>")
     exit(0)
